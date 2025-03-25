@@ -52,4 +52,3 @@ pause
 goto fin
 
 :fin
-echo Au revoir! 
