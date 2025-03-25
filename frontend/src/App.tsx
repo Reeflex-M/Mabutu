@@ -1,47 +1,54 @@
-import React, { useEffect, useState } from "react";
-import logo from "./logo.svg";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route, Link, Navigate } from "react-router-dom";
 import "./App.css";
 
+import Login from "./components/Login";
+import Profile from "./components/Profile";
+import PrivateRoute from "./components/PrivateRoute";
+
 function App() {
-  const [customers, setCustomers] = useState([]);
-  const [error, setError] = useState<string | null>(null);
-
-  // Example fetch to get the customer list from the server/db
-  useEffect(() => {
-    fetch("http://localhost:8000/customer/")
-      .then((response) => response.json())
-      .then((data) => setCustomers(data))
-      .catch((error) => setError(error.message));
-  }, []);
-
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          {error ? (
-            <span style={{ color: 'red' }}>
-              Erreur de connexion : Assurez-vous que le serveur backend est démarré
-            </span>
-          ) : (
-            "Edit src/App.tsx and save to reload."
-          )}
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-        {customers.map(({ pk, name, email, created }) => (
-          <p key={pk}>
-            Customer name: {name}, email: {email}, created at: {created}
-          </p>
-        ))}
-      </header>
-    </div>
+    <Router>
+      <div className="App">
+        <nav className="bg-gray-800 p-4">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <span className="text-white font-bold text-xl">Mabutu</span>
+                </div>
+                <div className="hidden md:block">
+                  <div className="ml-10 flex items-baseline space-x-4">
+                    <Link
+                      to="/"
+                      className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                    >
+                      Accueil
+                    </Link>
+                    <Link
+                      to="/profile"
+                      className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                    >
+                      Profil
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </nav>
+
+        <main>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route element={<PrivateRoute />}>
+              <Route path="/profile" element={<Profile />} />
+            </Route>
+            <Route path="/" element={<Navigate to="/profile" />} />
+          </Routes>
+        </main>
+      </div>
+    </Router>
   );
 }
 
