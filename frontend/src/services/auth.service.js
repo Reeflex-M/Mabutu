@@ -19,6 +19,19 @@ const login = async (username, password) => {
   }
 };
 
+const register = async (username, email, password) => {
+  try {
+    const response = await axios.post(API_URL + "customer/auth/register/", {
+      username,
+      email,
+      password,
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 const logout = () => {
   localStorage.removeItem("user");
 };
@@ -39,6 +52,7 @@ const isAuthenticated = () => {
 const authService = {
   login,
   logout,
+  register,
   getCurrentUser,
   isAuthenticated
 };

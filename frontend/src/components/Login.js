@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import authService from "../services/auth.service";
 
 const Login = () => {
@@ -86,6 +86,18 @@ const Login = () => {
             >
               {loading ? "Connexion en cours..." : "Se connecter"}
             </button>
+          </div>
+          
+          <div className="flex items-center justify-center">
+            <div className="text-sm">
+              Pas encore de compte?{" "}
+              <Link
+                to="/register"
+                className="font-medium text-indigo-600 hover:text-indigo-500"
+              >
+                Inscrivez-vous
+              </Link>
+            </div>
           </div>
         </form>
       </div>

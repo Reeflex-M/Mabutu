@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link, Navigate } from "react-ro
 import "./App.css";
 
 import Login from "./components/Login";
+import Register from "./components/Register";
 import Profile from "./components/Profile";
 import PrivateRoute from "./components/PrivateRoute";
 
@@ -34,6 +35,22 @@ function App() {
                   </div>
                 </div>
               </div>
+              <div className="hidden md:block">
+                <div className="ml-4 flex items-center md:ml-6">
+                  <Link
+                    to="/register"
+                    className="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium"
+                  >
+                    S'inscrire
+                  </Link>
+                  <Link
+                    to="/login"
+                    className="text-white bg-indigo-600 hover:bg-indigo-700 ml-2 px-3 py-2 rounded-md text-sm font-medium"
+                  >
+                    Se connecter
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
         </nav>
@@ -41,6 +58,7 @@ function App() {
         <main>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route element={<PrivateRoute />}>
               <Route path="/profile" element={<Profile />} />
             </Route>
