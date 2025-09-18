@@ -1,14 +1,19 @@
-import React from "react";
-import { Navigate, Outlet } from "react-router-dom";
-import authService from "../services/auth.service";
+import React from 'react';
+import { Navigate, Outlet } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
-// Composant qui protège les routes nécessitant une authentification
 const PrivateRoute = () => {
-  const isAuthenticated = authService.isAuthenticated();
+  const { currentUser, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+      </div>
+    );
+  }
   
-  // Si l'utilisateur n'est pas authentifié, il est redirigé vers la page de connexion
-  // Sinon, on affiche les composants enfants de la route
-  return isAuthenticated ? <Outlet /> : <Navigate to="/login" />;
+  return currentUser ? <Outlet /> : <Navigate to="/login" />;
 };
 
 export default PrivateRoute; 

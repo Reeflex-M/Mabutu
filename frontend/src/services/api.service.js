@@ -1,28 +1,18 @@
 import axios from "axios";
-import authService from "./auth.service";
+import authHeader from "./auth-header";
 
 const API_URL = "http://localhost:8000/";
 
-// Fonction pour obtenir le token JWT actuel
-const getAuthToken = () => {
-  const user = authService.getCurrentUser();
-  return user?.access;
-};
-
-// Création d'une instance axios avec configuration
+// Configuration Axios avec intercepteur pour ajouter le header d'authentification
 const apiClient = axios.create({
   baseURL: API_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
-// Intercepteur pour ajouter le token aux requêtes
 apiClient.interceptors.request.use(
   (config) => {
-    const token = getAuthToken();
+    const token = authHeader();
     if (token) {
-      config.headers["Authorization"] = `Bearer ${token}`;
+      config.headers["Authorization"] = token;
     }
     return config;
   },
@@ -31,13 +21,44 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Fonction pour récupérer les informations de l'utilisateur connecté
-const getUserInfo = async () => {
-  return apiClient.get("customer/auth/user/");
+// Posts API
+const getPosts = () => {
+  return apiClient.get("api/posts/");
+};
+
+const getPostById = (id) => {
+  return apiClient.get(`api/posts/${id}/`);
+};
+
+const createPost = (data) => {
+  return apiClient.post("api/posts/", data);
+};
+
+const updatePost = (id, data) => {
+  return apiClient.put(`api/posts/${id}/`, data);
+};
+
+const deletePost = (id) => {
+  return apiClient.delete(`api/posts/${id}/`);
+};
+
+// Commentaires API
+const getPostComments = (postId) => {
+  return apiClient.get(`api/posts/${postId}/comments/`);
+};
+
+const addComment = (postId, content) => {
+  return apiClient.post(`api/posts/${postId}/comments/`, { content });
 };
 
 const apiService = {
-  getUserInfo,
+  getPosts,
+  getPostById,
+  createPost,
+  updatePost,
+  deletePost,
+  getPostComments,
+  addComment,
 };
 
 export default apiService; 

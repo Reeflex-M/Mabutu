@@ -1,50 +1,57 @@
 from django.shortcuts import render
-from .models import Customer
-from rest_framework import generics, status
-from .serializers import CustomerSerializer, UserSerializer
+from .models import Post, Comment
+from rest_framework import generics, status, permissions
+from .serializers import UserSerializer, PostSerializer, CommentSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from django.contrib.auth.models import User
 
 
-class CustomerCreate(generics.CreateAPIView):
-    # API endpoint that allows creation of a new customer
-    queryset = (Customer.objects.all(),)
-    serializer_class = CustomerSerializer
+class IsAdminOrReadOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        #lecture autorisée pour tous
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        
+        #ecriture autorisée uniquement pour les admins
+        return request.user and request.user.is_staff
 
 
-class CustomerList(generics.ListAPIView):
-    # API endpoint that allows customer to be viewed.
-    queryset = Customer.objects.all()
-    serializer_class = CustomerSerializer
+class PostList(generics.ListCreateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = [IsAdminOrReadOnly]
+    
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
 
-class CustomerDetail(generics.RetrieveAPIView):
-    # API endpoint that returns a single customer by pk.
-    queryset = Customer.objects.all()
-    serializer_class = CustomerSerializer
+class PostDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = [IsAdminOrReadOnly]
+    
+    def perform_update(self, serializer):
+        serializer.save(author=self.request.user)
 
 
-class CustomerUpdate(generics.RetrieveUpdateAPIView):
-    # API endpoint that allows a customer record to be updated.
-    queryset = Customer.objects.all()
-    serializer_class = CustomerSerializer
+class CommentList(generics.ListCreateAPIView):
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        post_id = self.kwargs.get('post_id')
+        return Comment.objects.filter(post_id=post_id)
+    
+    def perform_create(self, serializer):
+        post_id = self.kwargs.get('post_id')
+        serializer.save(user=self.request.user, post_id=post_id)
 
-
-class CustomerDelete(generics.RetrieveDestroyAPIView):
-    # API endpoint that allows a customer record to be deleted.
-    queryset = Customer.objects.all()
-    serializer_class = CustomerSerializer
-
-
+#page profil d'un user -> besoin d'un JWT valide
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user_info(request):
-    """
-    Cette vue renvoie les informations de l'utilisateur connecté.
-    Elle est protégée et nécessite un token JWT valide.
-    """
     user = request.user
     data = {
         'id': user.id,
@@ -54,12 +61,11 @@ def get_user_info(request):
     }
     return Response(data)
 
+
+#inscription d'un user
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_user(request):
-    """
-    Vue pour inscrire un nouvel utilisateur.
-    """
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
         user = serializer.save()
