@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import authService from "../services/auth.service";
+import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -9,6 +9,7 @@ const Login = () => {
   const [error, setError] = useState("");
   
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -16,8 +17,15 @@ const Login = () => {
     setLoading(true);
     
     try {
-      await authService.login(username, password);
-      navigate("/profile");
+      const userData = await login(username, password);
+      
+      if (userData) {
+        // Rediriger vers la page précédente ou la page d'accueil
+        // La navigation + rechargement force la mise à jour des états dans App.tsx
+        window.location.href = "/";
+      } else {
+        setError("Échec de la connexion. Veuillez réessayer.");
+      }
     } catch (error) {
       setError(
         error.response?.data?.detail || 

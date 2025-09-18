@@ -1,20 +1,20 @@
 from django.urls import path
 from .views import (
-    CustomerCreate,
-    CustomerList,
-    CustomerDetail,
-    CustomerUpdate,
-    CustomerDelete,
+    PostList,
+    PostDetail,
+    CommentList,
 )
 from . import views
 
 
 urlpatterns = [
-    path("create/", CustomerCreate.as_view(), name="create-customer"),
-    path("", CustomerList.as_view()),
-    path("<int:pk>/", CustomerDetail.as_view(), name="retrieve-customer"),
-    path("update/<int:pk>/", CustomerUpdate.as_view(), name="update-customer"),
-    path("delete/<int:pk>/", CustomerDelete.as_view(), name="delete-customer"),
     path('auth/user/', views.get_user_info, name='user_info'),
     path('auth/register/', views.register_user, name='register'),
+    
+    #gestion des posts
+    path('posts/', PostList.as_view(), name='post-list'),
+    path('posts/<int:pk>/', PostDetail.as_view(), name='post-detail'),
+    
+    #gestion des commentaires
+    path('posts/<int:post_id>/comments/', CommentList.as_view(), name='post-comments'),
 ]
